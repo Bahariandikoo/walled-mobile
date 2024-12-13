@@ -1,4 +1,5 @@
 import { StatusBar } from "expo-status-bar";
+import { Link } from "expo-router";
 import {
   StyleSheet,
   Text,
@@ -7,16 +8,20 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-import HelloWorld from "./components/Helloworld";
-import Button from "./components/Button";
-import Input from "./components/Input";
+import Button from "../components/Button";
+import Input from "../components/Input";
 
 export default function App() {
   return (
     <View style={styles.container}>
       <View style={styles.logo}>
-        <Image source={require("./assets/walledLogo.png")} />
+        <Image source={require("../assets/walledLogo.png")} />
       </View>
+      <TextInput
+        style={styles.input}
+        placeholder="Fullname"
+        placeholderTextColor="#aaa"
+      />
 
       <TextInput
         style={styles.input}
@@ -32,8 +37,23 @@ export default function App() {
         secureTextEntry={true}
         keyboardType="number-pad"
       />
-      <Input text={"Notes"} />
-      <Button text="Login" />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Avatar Url"
+        placeholderTextColor="#aaa"
+      />
+      {/* <Input text={"Notes"} />
+       */}
+      <Button text="Register" />
+      <View style={styles.haveAccount}>
+        <Text>
+          Have account?
+          <Link href={"/"} style={styles.signHere}>
+            Login Here
+          </Link>
+        </Text>
+      </View>
       <StatusBar style="auto" />
     </View>
   );
@@ -46,6 +66,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 20,
+  },
+  haveAccount: {
+    alignItems: "left",
+    marginTop: 10,
+  },
+  signHere: {
+    color: "#19918F",
   },
   logo: {
     marginBottom: 50,
