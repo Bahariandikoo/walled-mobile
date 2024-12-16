@@ -33,11 +33,12 @@ export default function App() {
       />
       {/* <Input text={"Notes"} />
        */}
+
       <Button text="Login" />
       <View style={styles.haveAccount}>
         <Text>
           Don't have account?
-          <Link href={"/home"} style={styles.registerHere}>
+          <Link href={"/register"} style={styles.registerHere}>
             Register Here
           </Link>
         </Text>

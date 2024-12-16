@@ -17,6 +17,12 @@ export default function Layout() {
       <Stack.Screen name="home" options={{ headerShown: false }} />
       <Stack.Screen name="register" options={{ headerShown: false }} />
       <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="modal"
+        options={{
+          presentation: "modal",
+        }}
+      />
     </Stack>
   );
 }
