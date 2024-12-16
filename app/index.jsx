@@ -13,52 +13,62 @@ import Input from "../components/Input";
 import { z } from "zod";
 import { useState } from "react";
 import axios, { Axios } from "axios";
-import { router } from "expo-router"; // For Expo Router
+import { useRouter, router } from "expo-router"; // For Expo Router
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const LoginSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
-  password: z.string().min(8, { message: "Must be 8 or more characters long" }),
+  password: z.string().min(4, { message: "Must be 4 or more characters long" }),
 });
 
 export default function App() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [errorMsg, setErrors] = useState({});
+  const [serverError, setServerError] = useState("");
+  const router = useRouter();
 
   const handleInputChange = (key, value) => {
     setForm({ ...form, [key]: value });
     try {
       LoginSchema.pick({ [key]: true }).parse({ [key]: value });
       setErrors((prev) => ({ ...prev, [key]: "" }));
-    } catch (err) {
-      setErrors((prev) => ({ ...prev, [key]: err.errors[0].message }));
+    } catch (error) {
+      setErrors((prev) => ({ ...prev, [key]: error.errors[0].message }));
     }
   };
 
   const handleSubmit = async () => {
     try {
       LoginSchema.parse(form);
-      console.log(form);
 
       const res = await axios.post(
         "http://192.168.18.83:8080/auth/login",
         form
       );
-      const token = res.data.data.token;
-      await AsyncStorage.setItem("token", token);
-
-      console.log(res.data.data.token);
-      console.log(res.status);
-      if (res.status === 200) {
-        router.replace("/(home)");
-      }
+      await AsyncStorage.setItem("token", res.data.data.token);
+      router.replace("/(home)");
     } catch (err) {
-      const errors = {};
-      err.errors.forEach((item) => {
-        const key = item.path[0];
-        errors[key] = item.message;
-      });
-      setErrors(errors);
+      if (axios.isAxiosError(err)) {
+        if (err.response) {
+          setServerError(err.response.data.message || "An error occurred");
+        } else if (err.request) {
+          setServerError("Network error. Please try again later.");
+          console.error("Network Error:", err.request);
+        } else {
+          setServerError("An unexpected error occurred.");
+          console.error("Request Setup Error:", err.message);
+        }
+      } else if (err?.errors) {
+        const errors = {};
+        err.errors.forEach((item) => {
+          const key = item.path[0];
+          errors[key] = item.message;
+        });
+        setErrors(errors);
+      } else {
+        setServerError("An unknown error occurred.");
+        console.error("Unhandled Error:", err);
+      }
     }
   };
   return (
