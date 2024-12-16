@@ -12,6 +12,9 @@ import Button from "../components/Button";
 import Input from "../components/Input";
 import { z } from "zod";
 import { useState } from "react";
+import axios, { Axios } from "axios";
+import { router } from "expo-router"; // For Expo Router
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const LoginSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -32,10 +35,23 @@ export default function App() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     try {
       LoginSchema.parse(form);
       console.log(form);
+
+      const res = await axios.post(
+        "http://192.168.18.83:8080/auth/login",
+        form
+      );
+      const token = res.data.data.token;
+      await AsyncStorage.setItem("token", token);
+
+      console.log(res.data.data.token);
+      console.log(res.status);
+      if (res.status === 200) {
+        router.replace("/(home)");
+      }
     } catch (err) {
       const errors = {};
       err.errors.forEach((item) => {
