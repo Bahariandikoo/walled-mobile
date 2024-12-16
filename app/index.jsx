@@ -10,19 +10,58 @@ import {
 } from "react-native";
 import Button from "../components/Button";
 import Input from "../components/Input";
+import { z } from "zod";
+import { useState } from "react";
+
+const LoginSchema = z.object({
+  email: z.string().email({ message: "Invalid email address" }),
+  password: z.string().min(8, { message: "Must be 8 or more characters long" }),
+});
 
 export default function App() {
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [errorMsg, setErrors] = useState({});
+
+  const handleInputChange = (key, value) => {
+    setForm({ ...form, [key]: value });
+    try {
+      LoginSchema.pick({ [key]: true }).parse({ [key]: value });
+      setErrors((prev) => ({ ...prev, [key]: "" }));
+    } catch (err) {
+      setErrors((prev) => ({ ...prev, [key]: err.errors[0].message }));
+    }
+  };
+
+  const handleSubmit = () => {
+    try {
+      LoginSchema.parse(form);
+      console.log(form);
+    } catch (err) {
+      const errors = {};
+      err.errors.forEach((item) => {
+        const key = item.path[0];
+        errors[key] = item.message;
+      });
+      setErrors(errors);
+    }
+  };
   return (
     <View style={styles.container}>
       <View style={styles.logo}>
         <Image source={require("../assets/walledLogo.png")} />
       </View>
+
       <TextInput
         style={styles.input}
         placeholder="Email"
         placeholderTextColor="#aaa"
         keyboardType="email-address"
+        onChangeText={(text) => handleInputChange("email", text)}
+        value={form.email}
       />
+      {errorMsg.email ? (
+        <Text style={styles.errorMsg}>{errorMsg.email}</Text>
+      ) : null}
 
       <TextInput
         style={styles.input}
@@ -30,11 +69,17 @@ export default function App() {
         placeholderTextColor="#aaa"
         secureTextEntry={true}
         keyboardType="number-pad"
+        onChangeText={(text) => handleInputChange("password", text)}
+        value={form.password}
       />
+      {errorMsg.password ? (
+        <Text style={styles.errorMsg}>{errorMsg.password}</Text>
+      ) : null}
+
       {/* <Input text={"Notes"} />
        */}
 
-      <Button text="Login" />
+      <Button style={styles.btn} handlePress={handleSubmit} text="Login" />
       <View style={styles.haveAccount}>
         <Text>
           Don't have account?
@@ -82,5 +127,11 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     backgroundColor: "#f9f9f9",
     fontSize: 16,
+  },
+  errorMsg: {
+    color: "red",
+    fontSize: 12,
+    width: "100%",
+    textAlign: "left",
   },
 });

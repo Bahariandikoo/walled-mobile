@@ -19,6 +19,7 @@ import { useState } from "react";
 export default function App() {
   const [isChecked, setChecked] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+
   return (
     <View style={styles.container}>
       <View style={styles.logo}>
@@ -60,9 +61,11 @@ export default function App() {
         />
         <Text style={styles.paragraph}>
           I have read and agree to the{" "}
-          <Pressable onPress={() => setModalVisible(true)}>
-            <Text style={{ color: "#19918F" }}>Terms and Conditions *</Text>
-          </Pressable>
+          {/* <Pressable onPress={() => setModalVisible(true)}> */}
+          <Link href={"/tnc"} style={{ color: "#19918F" }}>
+            Terms and Conditions *
+          </Link>
+          {/* </Pressable> */}
         </Text>
       </View>
       <Button text="Register" />
@@ -74,54 +77,7 @@ export default function App() {
           </Link>
         </Text>
       </View>
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          Alert.alert("Modal has been closed.");
-          setModalVisible(!modalVisible);
-        }}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalText}>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum
-              velit quaerat animi suscipit voluptatem ab expedita! Culpa
-              perferendis nemo quae, ducimus, accusantium quod at saepe
-              inventore autem ullam vel laboriosam. Lorem ipsum dolor sit amet
-              consectetur adipisicing elit. Tenetur deleniti voluptates ipsam
-              error, in soluta esse rem nihil. Temporibus, eligendi! Nostrum
-              debitis voluptatem eveniet quo voluptatum pariatur repellendus
-              culpa. Eum! Lorem ipsum dolor sit amet consectetur adipisicing
-              elit. Rerum velit quaerat animi suscipit voluptatem ab expedita!
-              Culpa perferendis nemo quae, ducimus, accusantium quod at saepe
-              inventore autem ullam vel laboriosam. Lorem ipsum dolor sit amet
-              consectetur adipisicing elit. Tenetur deleniti voluptates ipsam
-              error, in soluta esse rem nihil. Temporibus, eligendi! Nostrum
-              debitis voluptatem eveniet quo voluptatum pariatur repellendus
-              culpa. Eum! Lorem ipsum dolor sit amet consectetur adipisicing
-              elit. Rerum velit quaerat animi suscipit voluptatem ab expedita!
-              Culpa perferendis nemo quae, ducimus, accusantium quod at saepe
-              inventore autem ullam vel laboriosam. Lorem ipsum dolor sit amet
-              consectetur adipisicing elit. Tenetur deleniti voluptates ipsam
-              error, in soluta esse rem nihil. Temporibus, eligendi! Nostrum
-              debitis voluptatem eveniet quo voluptatum pariatur repellendus
-              culpa. Eum! Lorem ipsum dolor sit amet consectetur adipisicing
-              elit. Rerum velit quaerat animi suscipit voluptatem ab expedita!
-              Culpa perferendis nemo quae, ducimus, accusantium quod at saepe
-              inventore autem ullam vel laboriosam. Lorem ipsum dolor sit amet
-              consectetur adipisicing elit. Tenetur deleniti voluptates ipsam{" "}
-            </Text>
-            <Pressable
-              style={[styles.button, styles.buttonClose]}
-              onPress={() => setModalVisible(!modalVisible)}
-            >
-              <Text style={styles.textStyle}>Hide Modal</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
+
       <StatusBar style="auto" />
     </View>
   );
