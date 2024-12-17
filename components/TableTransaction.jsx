@@ -1,4 +1,5 @@
 import { Link, Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import {
   Image,
   Text,
@@ -6,23 +7,21 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  RefreshControl,
-  StatusBar,
 } from "react-native";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import { useEffect, useState, React, useCallback } from "react";
+import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+// import {icon} from ''../../assets/avatar.png''
 
 function LogoTitle({ user }) {
-  const [isAvatarActive, setIsAvatarActive] = useState(false);
-  console.log("USER", user);
+  const [isAvatarActive, setIsAvatarActive] = useState(true);
   return (
     <TouchableOpacity
       style={[
         styles.avatarContainer,
-        { borderColor: isAvatarActive ? "#178F8D" : "#fafbfd" },
+        { borderColor: setIsAvatarActive ? "#178F8D" : "#fafbfd" },
       ]}
       onPress={() => setIsAvatarActive((prev) => !prev)}
       activeOpacity={0.8}
@@ -31,24 +30,15 @@ function LogoTitle({ user }) {
     </TouchableOpacity>
   );
 }
+
 export default function Home() {
   const [user, setUser] = useState({});
-  const [showBalance, setShowBalance] = useState({});
-  const [refreshing, setRefreshing] = useState(false);
   const [transaction, setTransaction] = useState([]);
-
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 2000);
-  }, []);
-
   useEffect(() => {
     const getData = async () => {
       try {
         const value = await AsyncStorage.getItem("token");
-        if (value != null) {
+        if (value !== null) {
           const res = await axios.get("https://walled-api.vercel.app/profile", {
             headers: {
               Authorization: `Bearer ${value}`,
@@ -62,8 +52,7 @@ export default function Home() {
       }
     };
     getData();
-  }, [refreshing]);
-
+  }, []);
   useEffect(() => {
     const getTransaction = async () => {
       try {
@@ -86,28 +75,21 @@ export default function Home() {
     };
     getTransaction();
   }, []);
-
   return (
-    <ScrollView
-      containerStyle={styles.scrollView}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-    >
+    <ScrollView containerStyle={styles.container}>
       <View style={styles.header}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
           <LogoTitle user={user} />
+          {/* <Image source={{user?.avatar_url && {user.avatar_url}}} style={{width: 50, height: 50}} /> */}
+          {/* <Image source={require('../../assets/avatar.png')} style={{ width: 50, height: 50 }} /> */}
           <View>
-            <Text style={{ fontSize: 18, fontWeight: "bold", marginInline: 3 }}>
-              {user.fullname}
+            <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+              {user?.fullname}
             </Text>
-            <Text style={{ fontSize: 18, marginInline: 3 }}>
-              Personal Account
-            </Text>
+            <Text style={{ fontSize: 18 }}>Personal Account</Text>
           </View>
         </View>
-
-        <Image source={require("../../assets/suntoggle.png")} />
+        {/* <Image source={require('../../assets/suntoggle.png')} /> */}
       </View>
       <View style={{ backgroundColor: "#FAFBFD", paddingHorizontal: 20 }}>
         <View
@@ -120,44 +102,35 @@ export default function Home() {
         >
           <View style={{ width: "70%" }}>
             <Text style={{ fontSize: 22, fontWeight: "bold", marginBottom: 8 }}>
-              Good Morning, {user?.username}!
+              Good Morning, {user?.fullname && user.fullname.split(" ")[0]}
             </Text>
-            <Text style={{ fontSize: 16 }}>
+            <Text style={{ fontSize: 18 }}>
               Check all your incoming and outgoing transactions here
             </Text>
           </View>
           <Image
-            source={require("../../assets/sun.png")}
+            source={require("../assets/sun.png")}
             style={{ width: 81, height: 77 }}
           />
+          {/* <Image source={require('../../assets/sun.png')} style={{ width: 81, height: 77 }} /> */}
         </View>
 
         <View style={styles.accountnumber}>
           <Text style={{ color: "#fff", fontSize: 18 }}>Account No.</Text>
-          <Text style={{ fontWeight: "bold", color: "#fff", fontSize: 18 }}>
-            {user?.wallet?.account_number}
-          </Text>
+          {user.wallet?.account_number && (
+            <Text style={{ fontWeight: "bold", color: "#fff", fontSize: 18 }}>
+              {user.wallet?.account_number}
+            </Text>
+          )}
         </View>
 
         <View style={styles.balancebox}>
           <View>
-            <Text style={{ fontSize: 22 }}>Balance</Text>
-            <Text style={{ fontSize: 27, fontWeight: "bold" }}>
-              {showBalance
-                ? new Intl.NumberFormat("id-ID", {
-                    style: "currency",
-                    currency: "IDR",
-                  }).format(user?.wallet?.balance || 0)
-                : "Rp***"}
-              <TouchableOpacity onPress={() => setShowBalance((prev) => !prev)}>
-                <Image
-                  source={require("../../assets/sun.png")}
-                  style={{ width: 18, height: 18, marginLeft: 10 }}
-                />
-              </TouchableOpacity>
+            <Text style={{ fontSize: 20 }}>Balance</Text>
+            <Text style={{ fontSize: 24, fontWeight: "bold" }}>
+              Rp {user.wallet?.balance}
             </Text>
           </View>
-
           <View>
             <View style={{ gap: 20 }}>
               <TouchableOpacity
@@ -188,7 +161,14 @@ export default function Home() {
           </View>
         </View>
 
-        <ScrollView style={styles.transaction}>
+        <ScrollView
+          style={{
+            flex: 1,
+            backgroundColor: "#fff",
+            marginTop: 40,
+            borderRadius: 10,
+          }}
+        >
           <Text
             style={{
               fontSize: 20,
@@ -200,9 +180,9 @@ export default function Home() {
           >
             Transaction History
           </Text>
-          {transaction?.map((transacs) => (
+          {transaction?.map((tx) => (
             <View
-              key={transacs.id}
+              key={transaction?.id}
               style={{
                 flexDirection: "row",
                 alignItems: "center",
@@ -213,22 +193,18 @@ export default function Home() {
             >
               <View>
                 <Text style={{ fontSize: 19 }}>{user?.fullname}</Text>
-                <Text style={{ fontSize: 16 }}>
-                  {transacs?.transaction_type}
-                </Text>
+                <Text style={{ fontSize: 16 }}>{tx?.transaction_type}</Text>
                 <Text style={{ fontSize: 14, color: "#b3b3b3" }}>
-                  {transacs?.transaction_date}
+                  {tx?.transaction_date}
                 </Text>
               </View>
               <Text
                 style={{
                   fontSize: 18,
-                  color:
-                    transacs?.transaction_type === "transfer" ? "red" : "green",
+                  color: tx?.transaction_type === "transfer" ? "red" : "green",
                 }}
               >
-                {transacs?.transaction_type === "transfer" ? "-" : "+"} Rp{" "}
-                {transacs.amount}
+                {tx?.transaction_type === "transfer" ? "-" : "+"} Rp {tx.amount}
               </Text>
             </View>
           ))}
@@ -238,6 +214,24 @@ export default function Home() {
     </ScrollView>
   );
 }
+
+// const user = {
+//   fullname: 'John Doe',
+//   typeofaccount: 'Personal Account',
+//   accountnumber: '123456789',
+//   balance: '10.000.000'
+// }
+
+// const transactions = [
+//   {
+//     id: 1,
+//     date: '08 December 2024',
+//     amount: '75.000',
+//     name: 'Indoapril',
+//     type: 'Topup',
+//     debit: false,
+//   },
+// ]
 
 const styles = StyleSheet.create({
   balancebox: {
@@ -252,15 +246,9 @@ const styles = StyleSheet.create({
       width: 0,
       height: 2,
     },
-    shadowOpacity: 1,
-    shadowRadius: 5,
-    elevation: 8,
-  },
-  scrollView: {
-    flex: 1,
-    backgroundColor: "pink",
-    alignItems: "center",
-    justifyContent: "center",
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   accountnumber: {
     paddingHorizontal: 20,
@@ -270,21 +258,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     backgroundColor: "#19918F",
     marginTop: 30,
-    marginBottom: 20,
+    marginBottom: 40,
     borderRadius: 10,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 1,
-    shadowRadius: 5,
-    elevation: 8,
-  },
-  avatarContainer: {
-    borderRadius: 9999, // Full circle
-    borderWidth: 4,
-    cursor: "pointer", // Optional for web
-    transition: "all 0.3s", // Optional for web
   },
   header: {
     width: "100%",
@@ -292,7 +267,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 40,
     paddingBottom: 12,
     backgroundColor: "#fff",
   },
@@ -302,19 +277,5 @@ const styles = StyleSheet.create({
   image: {
     width: 50,
     height: 50,
-    borderRadius: 50,
-  },
-  transaction: {
-    flex: 1,
-    backgroundColor: "#fff",
-    marginTop: 25,
-    borderRadius: 10,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 1,
-    shadowRadius: 5,
-    elevation: 8,
   },
 });

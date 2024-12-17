@@ -42,7 +42,7 @@ export default function App() {
       LoginSchema.parse(form);
 
       const res = await axios.post(
-        "http://192.168.18.83:8080/auth/login",
+        "https://walled-api.vercel.app/auth/login",
         form
       );
       await AsyncStorage.setItem("token", res.data.data.token);
@@ -94,7 +94,7 @@ export default function App() {
         placeholder="Password"
         placeholderTextColor="#aaa"
         secureTextEntry={true}
-        keyboardType="number-pad"
+        // keyboardType="number-pad"
         onChangeText={(text) => handleInputChange("password", text)}
         value={form.password}
       />
